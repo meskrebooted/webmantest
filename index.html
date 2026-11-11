@@ -1,169 +1,419 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#10131a">
 <title>PS3 webMAN Remote</title>
 <style>
-:root{color-scheme:dark;--bg:#10131a;--panel:#1a202b;--panel2:#222b39;--line:#303b4d;--txt:#f3f6fb;--muted:#9eacc0;--accent:#67a8ff;--good:#62d6a5;--warn:#ffbd69;--danger:#ff7373}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#121824,#0c0f15 65%);color:var(--txt);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 14px calc(24px + env(safe-area-inset-bottom));}
-header{position:sticky;top:0;z-index:5;background:#10131aee;backdrop-filter:blur(14px);padding:12px 0 10px;border-bottom:1px solid var(--line)}
-h1{font-size:21px;margin:0 0 4px}.sub{font-size:12px;color:var(--muted)}
-.status{display:flex;gap:8px;align-items:center;margin-top:10px}.dot{width:8px;height:8px;border-radius:50%;background:var(--good)}#status{font-size:12px;color:var(--muted);flex:1}
-input{background:#0d1118;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:11px;width:100%;font-size:15px}
-button,.link{border:1px solid var(--line);background:linear-gradient(180deg,#2a3546,#202938);color:var(--txt);border-radius:13px;padding:13px 10px;font-weight:650;font-size:14px;min-height:46px;touch-action:manipulation;cursor:pointer}
-button:active,.link:active{transform:scale(.97);background:#3a4a62}
-button.blue{background:linear-gradient(180deg,#347bd0,#235a9e);border-color:#468fe9}
-button.green{background:linear-gradient(180deg,#267e66,#195844);border-color:#318c71}
-button.red{background:linear-gradient(180deg,#963d48,#672b35);border-color:#a84a56}
-button.small{min-height:38px;padding:8px 10px;font-size:12px}
-section{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;margin:14px 0}
-h2{font-size:16px;margin:0 0 12px}.hint{font-size:12px;line-height:1.45;color:var(--muted);margin:8px 0 0}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.grid.two{grid-template-columns:repeat(2,1fr)}.grid.four{grid-template-columns:repeat(4,1fr)}
-.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
-.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:310px;margin:auto}
-.pad button{min-height:62px;font-size:19px}
-.center{display:grid;place-items:center;border:1px dashed var(--line);border-radius:13px;color:var(--muted);font-size:11px}
-.face{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:230px;margin:auto}
-.face button{border-radius:50%;aspect-ratio:1;min-height:0;font-size:20px;padding:0}
-.face .cross{background:#245f9a}.face .circle{background:#873d4b}.face .square{background:#326b58}.face .triangle{background:#65528f}
-.analogWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.analog{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
-.analog button{min-height:42px;padding:6px}
-.kbd{font-size:11px;color:var(--muted);text-align:center;margin:5px 0}
-details{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}summary{font-weight:650;cursor:pointer}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
-#sink{position:fixed;width:1px;height:1px;left:-10px;bottom:0;border:0;opacity:0}
+:root{
+  color-scheme: dark;
+  --bg: #0f1219;
+  --panel: #1a202b;
+  --panel2: #222b39;
+  --line: #303b4d;
+  --txt: #f3f6fb;
+  --muted: #9eacc0;
+  --accent: #67a8ff;
+  --good: #62d6a5;
+  --warn: #ffbd69;
+  --danger: #ff7373;
+}
+* { box-sizing: border-box; }
+body{
+  margin: 0;
+  background: linear-gradient(160deg, #121824, #0c0f15 65%);
+  color: var(--txt);
+  font: 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: env(safe-area-inset-top) 12px calc(20px + env(safe-area-inset-bottom));
+  -webkit-tap-highlight-color: transparent;
+}
+header{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #10131aee;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0 10px;
+}
+h1{ font-size: 20px; margin: 0 0 4px; }
+.sub{ font-size: 12px; color: var(--muted); }
+.status{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.dot{ width: 8px; height: 8px; border-radius: 50%; background: var(--good); }
+#status{ font-size: 12px; color: var(--muted); flex: 1; }
+input{
+  background: #0d1118;
+  color: var(--txt);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 15px;
+  width: 100%;
+}
+button, .link{
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #2a3546, #202938);
+  color: var(--txt);
+  border-radius: 12px;
+  padding: 12px 10px;
+  font-weight: 700;
+  font-size: 14px;
+  min-height: 48px;
+  touch-action: manipulation;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+button:active, .link:active{ transform: scale(0.96); background: #3a4a62; }
+button.blue{ background: linear-gradient(180deg, #347bd0, #235a9e); border-color: #468fe9; }
+button.green{ background: linear-gradient(180deg, #267e66, #195844); border-color: #318c71; }
+button.red{ background: linear-gradient(180deg, #963d48, #672b35); border-color: #a84a56; }
+button.small{ min-height: 38px; font-size: 12px; padding: 6px 10px; }
+
+section{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  margin: 12px 0;
+}
+h2{
+  font-size: 16px;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hint{
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+  margin: 6px 0 0;
+}
+
+/* Grid automatico che si adatta al mobile */
+.grid{ display: grid; gap: 8px; }
+.grid.two{ grid-template-columns: repeat(2, 1fr); }
+.grid.three{ grid-template-columns: repeat(3, 1fr); }
+.grid.four{ grid-template-columns: repeat(4, 1fr); }
+
+/* Controller */
+.pad{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 300px;
+  margin: 0 auto 14px;
+}
+.pad button{ min-height: 60px; font-size: 20px; }
+.blank{ grid-column: 1; grid-row: 1; visibility: hidden; }
+.center-box{
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 6px;
+}
+.face{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  max-width: 240px;
+  margin: 0 auto 12px;
+}
+.face button{
+  border-radius: 50%;
+  aspect-ratio: 1;
+  min-height: 0;
+  font-size: 20px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.face .cross{ background: #245f9a; }
+.face .circle{ background: #873d4b; }
+.face .square{ background: #326b58; }
+.face .triangle{ background: #65528f; }
+
+.analogWrap{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+.analog{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+.analog button{ min-height: 44px; padding: 6px; font-size: 13px; }
+.kbd{ font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 4px; }
+
+details{
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+summary{ font-weight: 700; cursor: pointer; color: var(--accent); }
+
+footer{
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 16px 0;
+}
+
+/* Sink nascosto per richieste in background */
+#sink{
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  left: -10px;
+  top: -10px;
+  border: 0;
+  opacity: 0;
+}
+
+/* Utilità */
+.row{ display: flex; gap: 8px; align-items: center; }
+.row > * { flex: 1; }
+.row input{ flex: 2; }
 </style>
 </head>
 <body>
+
 <header>
   <h1>PS3 webMAN Remote</h1>
   <div class="sub">Telecomando mobile · webMAN MOD</div>
-  <div class="status"><span class="dot" id="dot"></span><span id="status">Pronto · destinazione 192.168.1.64</span><button class="small" onclick="ping()">Test connessione</button></div>
+  <div class="status">
+    <span class="dot" id="dot"></span>
+    <span id="status">Pronto · 192.168.1.64</span>
+    <button class="small" onclick="ping()">Test</button>
+  </div>
 </header>
 
+<!-- Connessione -->
 <section>
-  <h2>Connessione</h2>
-  <div class="row"><input id="ip" value="192.168.1.64" aria-label="IP PS3"><button class="blue" onclick="saveIP()">Imposta IP</button></div>
-  <p class="hint">iPhone e PS3 devono essere sulla stessa rete Wi‑Fi. La comunicazione usa HTTP locale.</p>
+  <h2>🔌 Connessione</h2>
+  <div class="row">
+    <input id="ip" type="text" value="192.168.1.64" placeholder="IP PS3">
+    <button class="blue small" onclick="saveIP()">Imposta IP</button>
+  </div>
+  <p class="hint">Telefono e PS3 devono essere sulla stessa rete Wi‑Fi. I comandi vengono inviati in background, senza cambiare pagina.</p>
 </section>
 
+<!-- Controller virtuale -->
 <section>
-  <h2>Controller virtuale</h2>
+  <h2>🎮 Controller virtuale</h2>
+
   <div class="pad">
-    <div></div><button onclick="pad('up')">▲</button><div></div>
-    <button onclick="pad('left')">◀</button><div class="center">D-PAD</div><button onclick="pad('right')">▶</button>
-    <div></div><button onclick="pad('down')">▼</button><div></div>
+    <div class="blank"></div>
+    <button onclick="pad('up')">▲</button>
+    <div class="blank"></div>
+    <button onclick="pad('left')">◀</button>
+    <div class="center-box">D‑PAD</div>
+    <button onclick="pad('right')">▶</button>
+    <div class="blank"></div>
+    <button onclick="pad('down')">▼</button>
+    <div class="blank"></div>
   </div>
-  <div style="height:14px"></div>
+
   <div class="face">
-    <div></div><button class="triangle" onclick="pad('triangle')">△</button><div></div>
-    <button class="square" onclick="pad('square')">□</button><button class="cross" onclick="pad('cross')">✕</button><button class="circle" onclick="pad('circle')">○</button>
-    <div></div><button onclick="pad('psbtn')" class="blue">PS</button><div></div>
+    <div class="blank"></div>
+    <button class="triangle" onclick="pad('triangle')">△</button>
+    <div class="blank"></div>
+    <button class="square" onclick="pad('square')">□</button>
+    <button class="cross" onclick="pad('cross')">✕</button>
+    <button class="circle" onclick="pad('circle')">○</button>
+    <div class="blank"></div>
+    <button class="blue" onclick="pad('psbtn')">PS</button>
+    <div class="blank"></div>
   </div>
-  <div class="grid two" style="margin-top:12px">
-    <button onclick="pad('select')">SELECT</button><button onclick="pad('start')">START</button>
-    <button onclick="pad('l1')">L1</button><button onclick="pad('r1')">R1</button>
-    <button onclick="pad('l2')">L2</button><button onclick="pad('r2')">R2</button>
-    <button onclick="pad('l3')">L3</button><button onclick="pad('r3')">R3</button>
+
+  <div class="grid three" style="margin-top: 10px">
+    <button onclick="pad('select')">SELECT</button>
+    <button onclick="pad('start')">START</button>
+    <button onclick="pad('psbtn')">PS</button>
+    <button onclick="pad('l1')">L1</button>
+    <button onclick="pad('r1')">R1</button>
+    <button onclick="pad('l2')">L2</button>
+    <button onclick="pad('r2')">R2</button>
+    <button onclick="pad('l3')">L3</button>
+    <button onclick="pad('r3')">R3</button>
   </div>
-  <details><summary>Analogici virtuali</summary>
+
+  <details>
+    <summary>Leva analogica virtuale</summary>
     <div class="analogWrap">
-      <div><div class="kbd">LEFT STICK</div><div class="analog">
-        <div></div><button onclick="pad('analogL_up')">▲</button><div></div>
-        <button onclick="pad('analogL_left')">◀</button><button onclick="pad('l3')">L3</button><button onclick="pad('analogL_right')">▶</button>
-        <div></div><button onclick="pad('analogL_down')">▼</button><div></div>
-      </div></div>
-      <div><div class="kbd">RIGHT STICK</div><div class="analog">
-        <div></div><button onclick="pad('analogR_up')">▲</button><div></div>
-        <button onclick="pad('analogR_left')">◀</button><button onclick="pad('r3')">R3</button><button onclick="pad('analogR_right')">▶</button>
-        <div></div><button onclick="pad('analogR_down')">▼</button><div></div>
-      </div></div>
+      <div>
+        <div class="kbd">SINISTRA</div>
+        <div class="analog">
+          <div class="blank"></div>
+          <button onclick="pad('analogL_up')">▲</button>
+          <div class="blank"></div>
+          <button onclick="pad('analogL_left')">◀</button>
+          <button onclick="pad('l3')">L3</button>
+          <button onclick="pad('analogL_right')">▶</button>
+          <div class="blank"></div>
+          <button onclick="pad('analogL_down')">▼</button>
+          <div class="blank"></div>
+        </div>
+      </div>
+      <div>
+        <div class="kbd">DESTRA</div>
+        <div class="analog">
+          <div class="blank"></div>
+          <button onclick="pad('analogR_up')">▲</button>
+          <div class="blank"></div>
+          <button onclick="pad('analogR_left')">◀</button>
+          <button onclick="pad('r3')">R3</button>
+          <button onclick="pad('analogR_right')">▶</button>
+          <div class="blank"></div>
+          <button onclick="pad('analogR_down')">▼</button>
+          <div class="blank"></div>
+        </div>
+      </div>
     </div>
   </details>
-  <div class="grid two" style="margin-top:10px">
+
+  <div class="grid two" style="margin-top: 10px">
     <button onclick="send('/pad.ps3?release')">Rilascia tutti i tasti</button>
     <button onclick="send('/pad.ps3?off')">Disattiva pad virtuale</button>
   </div>
-  <p class="hint">Ogni pressione invia il comando in background: non apre una nuova pagina. Per i tasti tenuti premuti usa la sezione sequenze qui sotto.</p>
+  <p class="hint">Ogni tasto invia il comando silenziosamente. Non si apre nessuna nuova pagina.</p>
 </section>
 
+<!-- Giochi e contenuti -->
 <section>
-  <h2>Giochi e contenuti</h2>
-  <div class="grid two">
+  <h2>💿 Giochi e contenuti</h2>
+  <div class="grid three">
     <button class="blue" onclick="send('/games.ps3')">Libreria giochi</button>
     <button onclick="send('/index.ps3')">Indice giochi</button>
-    <button onclick="send('/refresh.ps3')">Aggiorna lista giochi</button>
-    <button onclick="send('/xmb.ps3$exit')">Esci dal gioco → XMB</button>
+    <button onclick="send('/refresh.ps3')">Aggiorna lista</button>
+    <button onclick="send('/xmb.ps3$exit')">Esci → XMB</button>
     <button onclick="send('/xmb.ps3$reloadgame')">Ricarica gioco</button>
     <button onclick="send('/xmb.ps3$eject')">Espelli disco virtuale</button>
     <button onclick="send('/xmb.ps3$insert')">Reinserisci disco virtuale</button>
     <button onclick="send('/eject.ps3')">Espelli disco fisico</button>
     <button onclick="send('/insert.ps3')">Inserisci disco fisico</button>
     <button onclick="send('/unmount.ps3')">Smonta gioco</button>
+    <button onclick="send('/reloadxmb.ps3')">Ricarica XMB</button>
+    <button onclick="send('/file.ps3')">File manager</button>
   </div>
-  <div class="row" style="margin-top:9px"><input id="game" placeholder="Nome gioco o percorso ISO"><button class="blue" onclick="mountGame()">Monta</button></div>
+  <div class="row" style="margin-top: 10px">
+    <input id="game" type="text" placeholder="Nome gioco o percorso ISO">
+    <button class="blue" onclick="mountGame()">Monta</button>
+  </div>
+  <p class="hint">Alcune voci aprono una pagina sul browser della PS3 (è normale, è webMAN a gestirla). Qui non si apre nulla sul telefono.</p>
 </section>
 
+<!-- Stato e impostazioni -->
 <section>
-  <h2>Stato e impostazioni</h2>
-  <div class="grid two">
-    <button onclick="send('/cpursx_ps3')">Temperature CPU / RSX</button>
+  <h2>⚙️ Stato e impostazioni</h2>
+  <div class="grid three">
+    <button onclick="send('/cpursx_ps3')">Temp. CPU / RSX</button>
     <button onclick="send('/setup.ps3')">Setup webMAN</button>
     <button onclick="send('/combos.html')">Editor combinazioni</button>
-    <button onclick="send('/admin.ps3?')">Stato modalità admin</button>
+    <button onclick="send('/admin.ps3?')">Stato admin</button>
     <button onclick="send('/extgd.ps3?status')">Stato gameDATA</button>
-    <button onclick="send('/extgd.ps3')">Attiva/disattiva gameDATA</button>
-    <button onclick="send('/file.ps3')">File manager (se disponibile)</button>
+    <button onclick="send('/extgd.ps3')">Attiva/Disattiva gameDATA</button>
     <button onclick="send('/reloadxmb.ps3')">Ricarica XMB</button>
-  </div>
-  <p class="hint">Setup, giochi e file manager possono restituire una pagina web sul browser PS3: qui vengono aperti in una nuova scheda solo se usi i relativi link sotto.</p>
-  <div class="grid two" style="margin-top:9px">
-    <button onclick="openPage('/setup.ps3')">Apri Setup</button>
-    <button onclick="openPage('/index.ps3')">Apri indice giochi</button>
-    <button onclick="openPage('/games.ps3')">Apri libreria</button>
-    <button onclick="openPage('/combos.html')">Apri editor combo</button>
   </div>
 </section>
 
+<!-- Comandi di sistema -->
 <section>
-  <h2>Comandi di sistema</h2>
+  <h2>🔌 Comandi di sistema</h2>
   <div class="grid two">
     <button onclick="send('/restart.ps3')">Riavvia PS3</button>
     <button onclick="send('/reboot.ps3?soft')">Riavvio soft</button>
-    <button class="red" onclick="confirmSend('/shutdown.ps3','Spegnere la PS3?')">Spegni PS3</button>
-    <button class="red" onclick="confirmSend('/reboot.ps3?hard','Eseguire un riavvio forzato?')">Riavvio forzato</button>
+    <button class="red" onclick="confirmSend('/shutdown.ps3', 'Spegni la PS3?')">Spegni PS3</button>
+    <button class="red" onclick="confirmSend('/reboot.ps3?hard', 'Riavvio forzato?')">Forza riavvio</button>
   </div>
-  <p class="hint">I comandi di riavvio e spegnimento interrompono la sessione corrente. Usali solo quando necessario.</p>
+  <p class="hint">Questi comandi interrompono la sessione corrente. Usali solo quando necessario.</p>
 </section>
 
+<!-- Sequenza personalizzata -->
 <section>
-  <h2>Sequenza personalizzata</h2>
-  <div class="row"><input id="sequence" placeholder="es. down_l1_l2_r1_r2_l3_hold"><button class="blue" onclick="sequenceSend()">Invia</button></div>
-  <p class="hint">Usa nomi separati da underscore: up, down, left, right, cross, circle, square, triangle, l1, l2, r1, r2, l3, r3, select, start, psbtn, hold, release.</p>
+  <h2>⌨️ Sequenza personalizzata</h2>
+  <div class="row">
+    <input id="sequence" type="text" placeholder="es. down_l1_l2_r1_r2_l3_hold">
+    <button class="blue" onclick="sequenceSend()">Invia sequenza</button>
+  </div>
+  <p class="hint">Nomi separati da underscore: up, down, left, right, cross, circle, square, triangle, l1, l2, r1, r2, l3, r3, select, start, psbtn, hold, release.</p>
 </section>
 
-<footer>Interfaccia non ufficiale. Comandi disponibili dipendono dalla versione e configurazione di webMAN MOD.</footer>
+<footer>Interfaccia non ufficiale. Le funzioni disponibili dipendono dalla versione di webMAN MOD installata.</footer>
+
 <iframe id="sink" title="Comandi webMAN in background"></iframe>
 
 <script>
-const ipField=document.getElementById('ip');
-function base(){return 'http://'+ipField.value.trim().replace(/^https?:\/\//,'').replace(/\/.*$/,'');}
-function setStatus(t,ok=true){document.getElementById('status').textContent=t;document.getElementById('dot').style.background=ok?'var(--good)':'var(--warn)';}
-function send(path){
-  const url=base()+path+(path.includes('?')?'&':'?')+'_='+Date.now();
-  document.getElementById('sink').src=url;
-  setStatus('Comando inviato: '+path,true);
+const ipField = document.getElementById('ip');
+const statusEl = document.getElementById('status');
+const dotEl = document.getElementById('dot');
+
+function base() {
+  let ip = ipField.value.trim();
+  ip = ip.replace(/^https?:\/\//, ''); // rimuove eventuale http://
+  ip = ip.replace(/\/.*$/, '');        // rimuove eventuale percorso
+  if (!ip) ip = '192.168.1.64';
+  return 'http://' + ip;
 }
-function pad(key){send('/pad.ps3?'+encodeURIComponent(key));}
-function saveIP(){setStatus('IP impostato: '+base());}
-function ping(){send('/cpursx_ps3');setStatus('Richiesta inviata. Se non cambia nulla, verifica IP e rete.',true);}
-function mountGame(){let v=document.getElementById('game').value.trim();if(!v)return;send('/mount.ps3/'+(v.startsWith('/')?v:v));}
-function sequenceSend(){let v=document.getElementById('sequence').value.trim().replace(/\s+/g,'_');if(v)send('/pad.ps3?'+encodeURIComponent(v));}
-function confirmSend(path,msg){if(confirm(msg))send(path);}
-function openPage(path){window.open(base()+path,'_blank','noopener');}
+
+function setStatus(text, ok = true) {
+  statusEl.textContent = text;
+  dotEl.style.background = ok ? 'var(--good)' : 'var(--warn)';
+}
+
+// Invia comando in background tramite iframe nascosto (nessuna navigazione)
+function send(path) {
+  const iframe = document.getElementById('sink');
+  const sep = path.includes('?') ? '&' : '?';
+  const url = base() + path + sep + '_=' + Date.now();
+  iframe.src = url;
+  setStatus('Inviato: ' + path, true);
+}
+
+function pad(key) {
+  send('/pad.ps3?' + encodeURIComponent(key));
+}
+
+function saveIP() {
+  setStatus('IP impostato: ' + base(), true);
+}
+
+function ping() {
+  send('/cpursx_ps3');
+  setStatus('Test connessione inviato...', true);
+}
+
+function mountGame() {
+  const v = document.getElementById('game').value.trim();
+  if (!v) {
+    setStatus('Inserisci un nome o percorso', false);
+    return;
+  }
+  const clean = v.startsWith('/') ? v : '/' + v;
+  send('/mount.ps3' + encodeURIComponent(clean));
+}
+
+function sequenceSend() {
+  const v = document.getElementById('sequence').value.trim().replace(/\s+/g, '_');
+  if (v) send('/pad.ps3?' + encodeURIComponent(v));
+}
+
+function confirmSend(path, msg) {
+  if (confirm(msg)) send(path);
+}
+
+// Inizializza
+setStatus('Pronto · ' + base(), true);
 </script>
+
 </body>
 </html>
