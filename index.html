@@ -194,7 +194,6 @@ footer{
   </div>
 </header>
 
-<!-- Avviso -->
 <section style="background:#1a202b;border-color:#347bd0;">
   <p style="margin:0;font-size:13px;color:#67a8ff;">
     ⚠️ Ogni tasto <b>apre la pagina di comando</b> della PS3, poi dopo ~1,5 secondi la chiude e torna qui.
@@ -383,18 +382,18 @@ function log(msg) {
   el.scrollTop = el.scrollHeight;
 }
 
-// Apre la pagina di comando, poi dopo 1500ms la chiude e torna qui
+// CORRETTO: ora concatena correttamente base + path + separatore + timestamp
 function invoke(path) {
-  const url = base() + (path.includes('?') ? '&' : '?') + '_=' + Date.now();
+  const sep = path.includes('?') ? '&' : '?';
+  const url = base() + path + sep + '_=' + Date.now();
 
-  // Chiudi eventuale finestra precedente ancora aperta
   if (currentWin && !currentWin.closed) {
     try { currentWin.close(); } catch (e) {}
   }
 
   currentWin = window.open(url, '_blank');
   setStatus('Aperto: ' + path, true);
-  log('Aperto: ' + path);
+  log('Aperto: ' + url);
 
   setTimeout(() => {
     if (currentWin && !currentWin.closed) {
@@ -442,7 +441,6 @@ function confirmSend(path, msg) {
   if (confirm(msg)) invoke(path);
 }
 
-// Inizializza
 setStatus('Pronto · ' + base(), true);
 </script>
 
