@@ -10,7 +10,6 @@
   color-scheme: dark;
   --bg: #0f1219;
   --panel: #1a202b;
-  --panel2: #222b39;
   --line: #303b4d;
   --txt: #f3f6fb;
   --muted: #9eacc0;
@@ -19,14 +18,13 @@
   --warn: #ffbd69;
   --danger: #ff7373;
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body{
   margin: 0;
   background: linear-gradient(160deg, #121824, #0c0f15 65%);
   color: var(--txt);
   font: 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   padding: env(safe-area-inset-top) 12px calc(20px + env(safe-area-inset-bottom));
-  -webkit-tap-highlight-color: transparent;
 }
 header{
   position: sticky;
@@ -101,7 +99,6 @@ h2{
 .grid{ display: grid; gap: 8px; }
 .grid.two{ grid-template-columns: repeat(2, 1fr); }
 .grid.three{ grid-template-columns: repeat(3, 1fr); }
-.grid.four{ grid-template-columns: repeat(4, 1fr); }
 
 /* Controller */
 .pad{
@@ -197,10 +194,10 @@ footer{
   </div>
 </header>
 
-<!-- Avviso modalità -->
+<!-- Avviso -->
 <section style="background:#1a202b;border-color:#347bd0;">
   <p style="margin:0;font-size:13px;color:#67a8ff;">
-    ⚠️ Modalità <b>apri → chiudi → torna indietro</b>: ogni tasto apre brevemente la pagina di webMAN sulla PS3, poi la chiude automaticamente e torna qui.
+    ⚠️ Ogni tasto <b>apre la pagina di comando</b> della PS3, poi dopo ~1,5 secondi la chiude e torna qui.
   </p>
 </section>
 
@@ -211,7 +208,7 @@ footer{
     <input id="ip" type="text" value="192.168.1.64" placeholder="IP PS3">
     <button class="blue small" onclick="saveIP()">Imposta IP</button>
   </div>
-  <p class="hint">Telefono e PS3 sulla stessa rete Wi‑Fi. I comandi aprono la pagina di webMAN, poi tornano qui.</p>
+  <p class="hint">Telefono e PS3 sulla stessa rete Wi‑Fi.</p>
 </section>
 
 <!-- Controller virtuale -->
@@ -292,7 +289,7 @@ footer{
     <button onclick="pad('release')">Rilascia tutti i tasti</button>
     <button onclick="pad('off')">Disattiva pad virtuale</button>
   </div>
-  <p class="hint">Ogni pressione apre la pagina di comando su webMAN, poi torna qui.</p>
+  <p class="hint">Ogni pressione apre la pagina di webMAN, poi torna qui automaticamente.</p>
 </section>
 
 <!-- Giochi e contenuti -->
@@ -326,4 +323,128 @@ footer{
     <button onclick="invoke('/cpursx_ps3')">Temp. CPU / RSX</button>
     <button onclick="invoke('/setup.ps3')">Setup webMAN</button>
     <button onclick="invoke('/combos.html')">Editor combinazioni</button>
-    <button onclick="invoke('/admin.ps3?')">St
+    <button onclick="invoke('/admin.ps3?')">Stato admin</button>
+    <button onclick="invoke('/extgd.ps3?status')">Stato gameDATA</button>
+    <button onclick="invoke('/extgd.ps3')">Attiva/Disattiva gameDATA</button>
+    <button onclick="invoke('/reloadxmb.ps3')">Ricarica XMB</button>
+  </div>
+</section>
+
+<!-- Comandi di sistema -->
+<section>
+  <h2>🔌 Comandi di sistema</h2>
+  <div class="grid two">
+    <button onclick="invoke('/restart.ps3')">Riavvia PS3</button>
+    <button onclick="invoke('/reboot.ps3?soft')">Riavvio soft</button>
+    <button class="red" onclick="confirmSend('/shutdown.ps3', 'Spegni la PS3?')">Spegni PS3</button>
+    <button class="red" onclick="confirmSend('/reboot.ps3?hard', 'Riavvio forzato?')">Forza riavvio</button>
+  </div>
+  <p class="hint">Questi comandi interrompono la sessione corrente. Usali solo quando necessario.</p>
+</section>
+
+<!-- Sequenza personalizzata -->
+<section>
+  <h2>⌨️ Sequenza personalizzata</h2>
+  <div class="row">
+    <input id="sequence" type="text" placeholder="es. down_l1_l2_r1_r2_l3_hold">
+    <button class="blue" onclick="sequenceSend()">Invia sequenza</button>
+  </div>
+  <p class="hint">Nomi separati da underscore: up, down, left, right, cross, circle, square, triangle, l1, l2, r1, r2, l3, r3, select, start, psbtn, hold, release.</p>
+</section>
+
+<footer>Interfaccia non ufficiale. Le funzioni disponibili dipendono dalla versione di webMAN MOD installata.</footer>
+
+<script>
+let currentWin = null;
+
+const ipField = document.getElementById('ip');
+const statusEl = document.getElementById('status');
+const dotEl = document.getElementById('dot');
+
+function base() {
+  let ip = ipField.value.trim();
+  ip = ip.replace(/^https?:\/\//, '');
+  ip = ip.replace(/\/.*$/, '');
+  if (!ip) ip = '192.168.1.64';
+  return 'http://' + ip;
+}
+
+function setStatus(text, ok = true) {
+  statusEl.textContent = text;
+  dotEl.style.background = ok ? 'var(--good)' : 'var(--warn)';
+}
+
+function log(msg) {
+  const el = document.getElementById('log');
+  if (!el) return;
+  const div = document.createElement('div');
+  div.textContent = new Date().toLocaleTimeString() + ' - ' + msg;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+// Apre la pagina di comando, poi dopo 1500ms la chiude e torna qui
+function invoke(path) {
+  const url = base() + (path.includes('?') ? '&' : '?') + '_=' + Date.now();
+
+  // Chiudi eventuale finestra precedente ancora aperta
+  if (currentWin && !currentWin.closed) {
+    try { currentWin.close(); } catch (e) {}
+  }
+
+  currentWin = window.open(url, '_blank');
+  setStatus('Aperto: ' + path, true);
+  log('Aperto: ' + path);
+
+  setTimeout(() => {
+    if (currentWin && !currentWin.closed) {
+      try {
+        currentWin.close();
+        log('Chiuso e ritorno');
+      } catch (e) {
+        log('Impossibile chiudere automaticamente (blocco browser)');
+      }
+    }
+    window.focus();
+    setStatus('Pronto · ' + base(), true);
+  }, 1500);
+}
+
+function pad(key) {
+  invoke('/pad.ps3?' + encodeURIComponent(key));
+}
+
+function saveIP() {
+  setStatus('IP impostato: ' + base(), true);
+  log('IP impostato: ' + base());
+}
+
+function ping() {
+  invoke('/cpursx_ps3');
+}
+
+function mountGame() {
+  const v = document.getElementById('game').value.trim();
+  if (!v) {
+    setStatus('Inserisci un nome o percorso', false);
+    return;
+  }
+  const clean = v.startsWith('/') ? v : '/' + v;
+  invoke('/mount.ps3' + encodeURIComponent(clean));
+}
+
+function sequenceSend() {
+  const v = document.getElementById('sequence').value.trim().replace(/\s+/g, '_');
+  if (v) invoke('/pad.ps3?' + encodeURIComponent(v));
+}
+
+function confirmSend(path, msg) {
+  if (confirm(msg)) invoke(path);
+}
+
+// Inizializza
+setStatus('Pronto · ' + base(), true);
+</script>
+
+</body>
+</html>
